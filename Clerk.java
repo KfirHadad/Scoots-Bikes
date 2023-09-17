@@ -1,14 +1,13 @@
-import java.util.*;
+import java.util.Random;
 
 public class Clerk implements Runnable {
 
 	private String id;
 	private Random random = new Random();
 	private boolean isDayOver = false;
-	private static final int repairingBufferCapacity = 5;
-	private static List<Customer> clerkQueue = new ArrayList<>();
-	private static List<Customer> buyingBuffer = new ArrayList<>();
-	private static List<Customer> repairingBuffer = new ArrayList<>();
+	private static Queue<Customer> clerkQueue = new Queue<Customer>();
+	private static Queue<Customer> buyingBuffer = new Queue<Customer>();
+	private static BoundedQueue<Customer> repairingBuffer = new BoundedQueue<Customer>();
 
 	public Clerk(String clerkID) {
 		this.id = clerkID;
@@ -26,7 +25,7 @@ public class Clerk implements Runnable {
 					}
 
 					// Dequeue a customer from the list
-					Customer customer = clerkQueue.remove(0);
+					Customer customer = clerkQueue.remove();
 
 					// Clerk starts servicing the customer
 					System.out.println("Clerk " + id + " is serving customer: " + customer.getName());
@@ -42,9 +41,6 @@ public class Clerk implements Runnable {
 					if (customer.getIndication().equals("buying"))
 						buyingBuffer.add(customer);
 					else if (customer.getIndication().equals("repairing")) {
-						if (repairingBuffer.size() < repairingBufferCapacity)
-							System.out.println(
-									"Repairing buffer is full. Customer " + customer.getName() + " cannot be added.");
 						repairingBuffer.add(customer);
 					}
 				}
@@ -63,11 +59,11 @@ public class Clerk implements Runnable {
 		}
 	}
 
-	public static List<Customer> getBuyingBuffer() {
+	public static Queue<Customer> getBuyingBuffer() {
 		return buyingBuffer;
 	}
 
-	public static List<Customer> getRepairingBuffer() {
+	public static BoundedQueue<Customer> getRepairingBuffer() {
 		return repairingBuffer;
 	}
 

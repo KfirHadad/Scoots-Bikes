@@ -5,7 +5,7 @@ public class JuniorTechnician implements Runnable {
 	private String id;
 	private int seniority;
 	private Random random = new Random();
-	private static List<Customer> seniorQueue = new ArrayList<Customer>();
+	private static Queue<Customer> seniorQueue = new Queue<Customer>();
 	private volatile boolean isDayOver = false;
 
 	public JuniorTechnician(String technicianID, int seniority) {
@@ -37,7 +37,7 @@ public class JuniorTechnician implements Runnable {
 			if (isDayOver)
 				break;
 
-			Customer customer = Clerk.getRepairingBuffer().remove(0);
+			Customer customer = Clerk.getRepairingBuffer().remove();
 
 			// Simulate the test result
 			if (random.nextDouble() < 0.2) {
@@ -69,5 +69,9 @@ public class JuniorTechnician implements Runnable {
 
 	protected void setJuniorDayOver() {
 		isDayOver = true; 
+	}
+	
+	public static Queue<Customer> getSeniorQueue(){
+		return seniorQueue;
 	}
 }
