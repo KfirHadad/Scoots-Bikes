@@ -4,7 +4,7 @@ public class Clerk implements Runnable {
 
 	private String id;
 	private Random random = new Random();
-	private boolean isDayOver = false;
+	private static volatile boolean isDayOver = false;
 	private static Queue<Customer> clerkQueue = new Queue<Customer>();
 	private static Queue<Customer> buyingBuffer = new Queue<Customer>();
 	private static BoundedQueue<Customer> repairingBuffer = new BoundedQueue<Customer>();
@@ -59,6 +59,13 @@ public class Clerk implements Runnable {
 		}
 	}
 
+	public static void addCustomerToSales(Customer customer) {
+		synchronized (Clerk.class) {
+			buyingBuffer.add(customer);
+			Salesman.class.notify();
+		}
+	}
+
 	public static Queue<Customer> getBuyingBuffer() {
 		return buyingBuffer;
 	}
@@ -67,7 +74,9 @@ public class Clerk implements Runnable {
 		return repairingBuffer;
 	}
 
-	protected void setClerkDayOver() {
-		isDayOver  = true; 
+	protected static void setClerkDayOver() {
+		synchronized (Clerk.class) {
+			isDayOver  = true; 
+		}
 	}
 }

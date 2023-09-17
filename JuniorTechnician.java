@@ -6,7 +6,7 @@ public class JuniorTechnician implements Runnable {
 	private int seniority;
 	private Random random = new Random();
 	private static Queue<Customer> seniorQueue = new Queue<Customer>();
-	private volatile boolean isDayOver = false;
+	private static volatile boolean isDayOver = false;
 
 	public JuniorTechnician(String technicianID, int seniority) {
 		this.id = technicianID;
@@ -63,15 +63,18 @@ public class JuniorTechnician implements Runnable {
 	public static void addCustomerToSenior(Customer customer) {
 		synchronized (SeniorTechnician.class) {
 			seniorQueue.add(customer);
-			SeniorTechnician.class.notify();
+			SeniorTechnician.class.notifyAll();
 		}
 	}
 
-	protected void setJuniorDayOver() {
-		isDayOver = true; 
-	}
-	
-	public static Queue<Customer> getSeniorQueue(){
+	public static Queue<Customer> getSeniorQueue() {
 		return seniorQueue;
+	}
+
+	protected static void setJuniorDayOver() {
+		synchronized (SeniorTechnician.class) {
+			isDayOver = true;
+
+		}
 	}
 }

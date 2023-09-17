@@ -58,8 +58,8 @@ public class Customer implements Runnable {
         return returnedFromManager;
     }
 
-    public void setReturnedFromManager(boolean returned) {
-        this.returnedFromManager = returned;
+    public void setReturnedFromManager() {
+        this.returnedFromManager = true;
     }
 
 }
