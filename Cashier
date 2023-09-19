@@ -32,9 +32,23 @@ public class Cashier extends Thread {
     private void writeToSummaryFile(SummaryDetails summary) {
         // Implement code to write summary details to a file here
         // Example: you can use FileWriter to append to a file
+ if (summaryFile != null) {
+            summaryFile.println(summary); // Write the summary to the file
+            summaryFile.flush(); // Flush the buffer to ensure data is written immediately
+        }
     }
 
     private void printEndOfDaySummary() {
+System.out.println("End of Day Summary:");
+        System.out.println("Total Customers Handled: " + Clerk.getHandledCustomers());
+        System.out.println("Total Profit: " + totalProfit + " NIS");
+ if (summaryFile != null) {
+            summaryFile.println("\nEnd of Day Summary:");
+            summaryFile.println("Total Customers Handled: " + Clerk.getHandledCustomers());
+            summaryFile.println("Total Profit: " + totalProfit + " NIS");
+            // Write outstanding employee information to the file
+            summaryFile.flush(); // Flush the buffer to ensure data is written immediately
+            summaryFile.close(); // Close the file when done
         // Implement code to print the end-of-day summary here
         // Include total customers handled, total profit, and outstanding employees
     }
