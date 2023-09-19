@@ -1,0 +1,41 @@
+public class Cashier extends Thread {
+    private String id;
+    private int totalProfit = 0; // Updated to track total profit
+
+    public Cashier(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public void run() {
+        while (!Clerk.isDayOver()) { // Use Clerk's isDayOver() method
+            if (!Clerk.getBuyingBuffer().isEmpty() && !Clerk.getRepairingBuffer().isEmpty()) {
+                Customer customer = Clerk.getBuyingBuffer().remove();
+                SummaryDetails summary = Clerk.getRepairingBuffer().remove().getSummaryDetails(); // Assuming Customer has a getSummaryDetails() method
+
+                // Update total profit based on customer's cost
+                totalProfit += customer.getCost();
+
+                // Print and log the summary
+                System.out.println("Cashier " + id + " is processing summary document:\n" + summary);
+                writeToSummaryFile(summary);
+
+                // Increment the number of customers handled
+                Clerk.addHandledCustomer();
+            }
+        }
+
+        // When the day is over, print the summary
+        printEndOfDaySummary();
+    }
+
+    private void writeToSummaryFile(SummaryDetails summary) {
+        // Implement code to write summary details to a file here
+        // Example: you can use FileWriter to append to a file
+    }
+
+    private void printEndOfDaySummary() {
+        // Implement code to print the end-of-day summary here
+        // Include total customers handled, total profit, and outstanding employees
+    }
+}
