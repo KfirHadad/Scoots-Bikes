@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class JuniorTechnician implements Runnable {
+public class JuniorTechnician extends Employee implements Runnable {
 
 	private String id;
 	private int seniority;
@@ -9,8 +9,9 @@ public class JuniorTechnician implements Runnable {
 	private static volatile boolean isDayOver = false;
 
 	public JuniorTechnician(String technicianID, int seniority) {
-		this.id = technicianID;
+		super(technicianID);
 		this.seniority = seniority;
+		this.customerCount = 0;
 	}
 
 	@Override
@@ -47,15 +48,13 @@ public class JuniorTechnician implements Runnable {
 			} else if (random.nextDouble() < 0.3) {
 				System.out.println(
 						"Customer " + customer.getName() + " is very dissatisfied. Transferring to customer manager.");
-				// Add the customer to the CustomerManager queue here.
+				CustomerManager.addToManagerQueue(customer);
 			} else {
 				Thread.sleep(3000);
 				int cost = random.nextInt(701) + 100; // Random cost between 100-800
 				System.out.println("Customer " + customer.getName() + " treatment completed. Cost: " + cost + " NIS");
-				customer.setRepairCost(cost);
-				SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(),
-						"Junior Technician", cost);
-				// Add the customer to the Cashier queue here.
+				customer.setCost(cost);
+				sendToCashier(customer);
 			}
 		}
 	}
@@ -71,10 +70,16 @@ public class JuniorTechnician implements Runnable {
 		return seniorQueue;
 	}
 
-	protected static void setJuniorDayOver() {
-		synchronized (SeniorTechnician.class) {
-			isDayOver = true;
+	protected synchronized static void setJuniorDayOver() {
+		isDayOver = true;
 
-		}
 	}
+
+	protected void sendToCashier(Customer customer) {
+		this.customerCount = this.getCustomerCount() + 1;
+		SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(), this, customer.getCost());
+		Cashier.addToQueue(doc);
+	}
+
+
 }

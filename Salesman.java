@@ -1,13 +1,17 @@
 import java.util.Random;
 
-public class Salesman implements Runnable {
+public class Salesman extends Employee implements Runnable {
 
 	private String id;
 	private Random random = new Random();
 	private static volatile boolean isDayOver = false;
+	private int totalSales;
+	private int customerCount;
 
 	public Salesman(String id) {
-		this.id = id;
+		super(id);
+		totalSales = 0;
+		this.customerCount = 0;
 	}
 
 	@Override
@@ -47,23 +51,21 @@ public class Salesman implements Runnable {
 				if (!isConvinced) {
 					System.out.println(
 							"Customer " + customer.getName() + " is not convinced. Transferring to customer manager.");
-					// Add the customer to the CustomerManager queue here.
+					CustomerManager.addToManagerQueue(customer);
 				} else {
 
 					// Simulate searching for the cheapest tool
 					ElectricVehicle cheapestVehicle = searchCheapestTool(customer.getVehicle().getType());
-					customer.setRepairCost(cheapestVehicle.getPrice());
+					customer.setCost(cheapestVehicle.getPrice());
+					totalSales = totalSales + cheapestVehicle.getPrice();
 
-					// Create a summary document
-					SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(), "Salesman",
-							cheapestVehicle.getPrice());
+					// Create a summary document and send to cashier
+					sendToCashier(customer);
 
-					// Add the customer to the Cashier queue here.
 				}
 			} else {
 				Thread.sleep(1500);
-				SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(), "Salesman",
-						customer.getCost());
+				sendToCashier(customer);
 			}
 		}
 	}
@@ -88,4 +90,15 @@ public class Salesman implements Runnable {
 			isDayOver = true;
 		}
 	}
+
+	protected void sendToCashier(Customer customer) {
+		this.customerCount = this.customerCount + 1;
+		SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(), this, customer.getCost());
+		Cashier.addToQueue(doc);
+	}
+
+	public int getTotal() {
+		return this.totalSales;
+	}
+
 }

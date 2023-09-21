@@ -38,9 +38,9 @@ public class Clerk implements Runnable {
 					System.out.println("Clerk " + id + " finished serving customer: " + customer.getName());
 
 					// Place the customer into the appropriate buffer (buying or repairing)
-					if (customer.getIndication().equals("buying"))
-						buyingBuffer.add(customer);
-					else if (customer.getIndication().equals("repairing")) {
+					if (customer.getIndication().equals("purchesing"))
+						addCustomerToSales(customer);
+					else if (customer.getIndication().equals("repairment")) {
 						repairingBuffer.add(customer);
 					}
 				}
@@ -48,22 +48,19 @@ public class Clerk implements Runnable {
 
 		} catch (InterruptedException e) {
 			// Handle interrupted exception if needed
-			e.getMessage();
+			e.printStackTrace();
 		}
 	}
 
-	public static void addCustomerToClerk(Customer customer) {
-		synchronized (Clerk.class) {
+	public static synchronized void addCustomerToClerk(Customer customer) {
 			clerkQueue.add(customer);
-			Clerk.class.notify();
-		}
+			Clerk.class.notifyAll();
+		
 	}
 
-	public static void addCustomerToSales(Customer customer) {
-		synchronized (Clerk.class) {
+	public static synchronized void addCustomerToSales(Customer customer) {
 			buyingBuffer.add(customer);
-			Salesman.class.notify();
-		}
+			Salesman.class.notifyAll();
 	}
 
 	public static Queue<Customer> getBuyingBuffer() {

@@ -42,7 +42,7 @@ public class Customer implements Runnable {
 		return this.indication;
 	}
 
-	public void setRepairCost(int cost) {
+	public void setCost(int cost) {
 		this.cost = cost;
 	}
 

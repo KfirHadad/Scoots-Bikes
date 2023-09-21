@@ -1,5 +1,11 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public abstract class ElectricVehicle implements Comparable<ElectricVehicle> {
 
@@ -23,6 +29,52 @@ public abstract class ElectricVehicle implements Comparable<ElectricVehicle> {
 		addToStock(this);
 	}
 
+	public static void loadVehicleStockFromFile(String filePath) throws InvalidInputException {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                // Parse each line and create ElectricVehicle objects
+                ElectricVehicle vehicle = parseVehicleFromLine(line);
+                if (vehicle != null) {
+                    addToStock(vehicle);
+                }
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }	
+	
+	protected static ElectricVehicle parseVehicleFromLine(String line) throws InvalidInputException {
+        String[] parts = line.split("\t"); // Assuming tab-separated values
+
+        if (parts.length != 7) {
+            // Invalid line format
+            return null;
+        }
+
+        String type = parts[0];
+        String modelName = parts[1];
+        double maxSpeed = Double.parseDouble(parts[2]);
+        double weight = Double.parseDouble(parts[3]);
+        int isClosing = Integer.parseInt(parts[4]);
+        int price = Integer.parseInt(parts[5]);
+        int inventory = Integer.parseInt(parts[6]);
+
+        // Create ElectricVehicle objects based on the type
+        if (type.equals("Scooter")) {
+            return new Scooter(modelName, maxSpeed, weight, price, inventory);
+        } else if (type.equals("Bike")) {
+            return new Bike(modelName, maxSpeed, weight, isClosing, price, inventory);
+        }
+
+        // Unknown vehicle type
+        return null;
+    }
+	
 	@Override
 	public int compareTo(ElectricVehicle other) {
 		return Integer.compare(this.price, other.price);

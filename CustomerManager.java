@@ -1,15 +1,15 @@
 import java.util.Random;
 
-public class CustomerManager implements Runnable {
+public class CustomerManager extends Employee implements Runnable {
 
 	private String id;
-	private volatile boolean isDayOver = false;
+	private static volatile boolean isDayOver = false;
 	private int totalCustomers;
 	private static int customersHandled = 0;
 	private static Queue<Customer> managerQueue = new Queue<Customer>();
 
 	public CustomerManager(String id, int totalCustomers) {
-		this.id = id;
+		super(id);
 		this.totalCustomers = totalCustomers;
 	}
 
@@ -44,30 +44,33 @@ public class CustomerManager implements Runnable {
 				if (randomValue < 0.1) {
 					System.out.println("Customer " + customer.getName()
 							+ " received a 50 NIS discount and returned to the senior technicians’ queue.");
-					customer.setRepairCost(customer.getCost() - 50);
+					customer.setCost(customer.getCost() - 50);
 					customer.setReturnedFromManager();
 					JuniorTechnician.addCustomerToSenior(customer);
 				} else if (randomValue < 0.4) {
 					// 30% transferred to the cashier to leave the store
+					customer.setCost(0);
 					System.out.println("Customer " + customer.getName() + " decided to leave the store.");
-					// Add the customer to the Cashier queue here.
+					sendToCashier(customer);
 				} else {
 					System.out
 							.println("Customer " + customer.getName() + " returned to the senior technicians’ queue.");
 					JuniorTechnician.addCustomerToSenior(customer);
 				}
+				
+				
 			} else if (customer.getIndication().equals("purchesing")) {
 				if (randomValue < 0.7) {
 					System.out.println("Customer " + customer.getName() + " decided to buy with a 100 NIS discount.");
 					customer.setReturnedFromManager();
-					customer.setRepairCost(customer.getCost() - 100);
+					customer.setCost(customer.getCost() - 100);
 					Clerk.addCustomerToSales(customer);
 				} else {
 					// The remaining customers were transferred to the cashier's queue to leave the
 					// store
-					customer.setRepairCost(-1);
+					customer.setCost(0);
 					System.out.println("Customer " + customer.getName() + " decided to leave the store.");
-					// Add the customer to the Cashier queue here.
+					sendToCashier(customer);
 				}
 			}
 
@@ -78,6 +81,7 @@ public class CustomerManager implements Runnable {
 				JuniorTechnician.setJuniorDayOver();
 				SeniorTechnician.setSeniorDayOver();
 				Salesman.setSalesmanDayOver();
+				Cashier.setCashierDayOver();
 
 			}
 		}
@@ -94,8 +98,13 @@ public class CustomerManager implements Runnable {
 		customersHandled = customersHandled + 1;
 	}
 
-	private void setManagerDayOver() {
+	protected static void setManagerDayOver() {
 		isDayOver = true;
+	}
+	
+	protected void sendToCashier(Customer customer) {
+		SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(), this, 0);
+		Cashier.addToQueue(doc);
 	}
 
 }

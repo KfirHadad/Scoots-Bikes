@@ -1,15 +1,17 @@
 import java.util.*;
 
-public class SeniorTechnician implements Runnable {
+public class SeniorTechnician extends Employee implements Runnable {
 
 	private String id;
 	private boolean isMaster;
 	private Random random = new Random();
+	private int customerCount;
 	private static volatile boolean isDayOver = false;
 
 	public SeniorTechnician(String id, boolean isMaster) {
-		this.id = id;
+		super(id);
 		this.isMaster = isMaster;
+		this.customerCount = 0;
 	}
 
 	@Override
@@ -53,16 +55,14 @@ public class SeniorTechnician implements Runnable {
 					cost = random.nextInt(451) + 50;
 				} else if (vehicle instanceof Bike) {
 					cost = random.nextInt(701) + 100;
-				} else {
-					cost = 0;
 				}
 
-				customer.setRepairCost(cost);
+				customer.setCost(cost);
 
 				if (!this.isMaster && cost > 450 && random.nextDouble() < 0.9) {
 					System.out.println("Customer " + customer.getName()
 							+ "is very dissatisfied. Transferring to customer manager.");
-					// Add the customer to the CustomerManager queue here.
+					CustomerManager.addToManagerQueue(customer);
 				} else {
 
 					if (cost >= 50 && cost < 300) {
@@ -77,18 +77,24 @@ public class SeniorTechnician implements Runnable {
 				Thread.sleep(1000);
 			}
 			System.out.println("Customer " + customer.getName() + " treatment completed. Cost: " + cost + " NIS");
-			SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(), "Senior Technician",
-					cost);
-			// Add the customer to the Cashier queue here.
+			SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(), this.id, cost);
+			sendToCashier(customer);
 
 		}
 	}
 
 	protected static void setSeniorDayOver() {
-		synchronized(SeniorTechnician.class) {
-		isDayOver = true;
-		
+		synchronized (SeniorTechnician.class) {
+			isDayOver = true;
+
 		}
 	}
+
+	protected void sendToCashier(Customer customer) {
+		this.customerCount = this.customerCount + 1;
+		SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(), this, customer.getCost());
+		Cashier.addToQueue(doc);
+	}
+	
 
 }
