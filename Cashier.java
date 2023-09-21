@@ -16,19 +16,10 @@ public class Cashier implements Runnable {
 	private String bestSalesman = "";
 	private String bestTechnician = "";
 
-	public Cashier(String id) {
+	public Cashier(String id, PrintWriter outputFile, Queue<SummaryDetails> summaryQueue) {
 		this.id = id;
-
-		PrintWriter output = null;
-
-		File file1 = new File("SummeryDetails.txt");
-		try {
-			output = new PrintWriter(new FileWriter(file1));
-		} catch (IOException exception) {
-			System.err.println(exception.getMessage());
-		} finally {
-			output.close();
-		}
+		this.outputFile = outputFile;
+		Cashier.summaryQueue = summaryQueue;
 
 	}
 

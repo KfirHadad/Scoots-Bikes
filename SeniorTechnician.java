@@ -77,7 +77,7 @@ public class SeniorTechnician extends Employee implements Runnable {
 				Thread.sleep(1000);
 			}
 			System.out.println("Customer " + customer.getName() + " treatment completed. Cost: " + cost + " NIS");
-			SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(), this.id, cost);
+			SummaryDetails doc = new SummaryDetails(customer.getName(), customer.getIndication(), this, cost);
 			sendToCashier(customer);
 
 		}

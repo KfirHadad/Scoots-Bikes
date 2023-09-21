@@ -1,11 +1,33 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.LinkedList;
 
 public class Company {
-    public static void main(String[] args) throws InvalidInputException {
+    public static void main(String[] args) throws Exception {
         // Load ElectricVehicle stock from a file
         loadVehicleStockFromFile("stock.txt");
+
+        loadCustomersFromFile("customers.txt");
+        
+        Queue<SummaryDetails> summaryQueue = new Queue<SummaryDetails>();
+
+        // Start the cashier thread
+        PrintWriter output = new PrintWriter(new FileWriter("summaryFile.txt"));
+
+        Cashier cashier1 = new Cashier("Cashier1", output, summaryQueue);
+        Cashier cashier2 = new Cashier("Cashier2", output, summaryQueue);
+
+        // Start Cashier threads
+        Thread cashierThread1 = new Thread(cashier1);
+        Thread cashierThread2 = new Thread(cashier2);
+
+        cashierThread1.start();
+        cashierThread2.start();
+        
+
 
         // Create and start employee threads
         Thread juniorTechnicianThread = new Thread(new JuniorTechnician("1", 1));
@@ -22,9 +44,6 @@ public class Company {
         salesmanThread2.start();
         customerManagerThread1.start();
 
-        // Start the cashier thread
-        Thread cashierThread = new Thread(new Cashier("Cashier1"));
-        cashierThread.start();
 
         // Simulate customer arrivals and interactions (you need to implement this logic)
 
@@ -44,7 +63,8 @@ public class Company {
             salesmanThread1.join();
             salesmanThread2.join();
             customerManagerThread1.join();
-            cashierThread.join();
+            cashierThread1.join();
+            cashierThread2.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -54,7 +74,7 @@ public class Company {
         // Exit the program
     }
 
-    private static void loadVehicleStockFromFile(String fileName) throws InvalidInputException {
+    private static void loadVehicleStockFromFile(String fileName) throws Exception {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -69,4 +89,26 @@ public class Company {
             e.printStackTrace();
         }
     }
+    
+    private static void loadCustomersFromFile(String fileName) throws Exception {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            boolean isFirstLine = true; // Add this flag to skip the header row
+            while ((line = reader.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue; // Skip the header row
+                }
+                // Parse each line and create Customer objects (you need to implement this logic)
+                Customer customer = Customer.parseCustomerFromLine(line);
+                if (customer != null) {
+                    // Process the customer (simulate arrivals and interactions)
+                    // You can send customers to appropriate queues or simulate their actions here
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
 }
