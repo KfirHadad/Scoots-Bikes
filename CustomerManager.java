@@ -4,13 +4,12 @@ public class CustomerManager extends Employee implements Runnable {
 
 	private String id;
 	private static volatile boolean isDayOver = false;
-	private int totalCustomers;
+	private static int totalCustomers = 200;
 	private static int customersHandled = 0;
 	private static Queue<Customer> managerQueue = new Queue<Customer>();
 
-	public CustomerManager(String id, int totalCustomers) {
+	public CustomerManager(String id) {
 		super(id);
-		this.totalCustomers = totalCustomers;
 	}
 
 	@Override
